@@ -7,7 +7,7 @@ var gameOptions = {
 	maxSumLen: 5,
 
 	// local storage name used to save high score
-	localStorageName: "oneplustwo",
+	// localStorageName: "oneplustwo",
 
 	// time allowed to answer a question, in milliseconds
 	timeToAnswer: 3000,
@@ -15,7 +15,7 @@ var gameOptions = {
 	// score needed to increase difficulty
 	nextLevel: 400
 }
-
+var PlayGameObj;
 // once the window has been completely loaded...
 window.onload = function() {
 
@@ -23,7 +23,8 @@ window.onload = function() {
 	game = new Phaser.Game(500, 500, Phaser.CANVAS);
 
 	// create "PlayGame" state and start it
-	game.state.add("PlayGame", playGame, true);
+	PlayGameObj = game.state.add("PlayGame", playGame, true);
+	initHeyue();
 }
 
 // "PlayGame" state
@@ -42,7 +43,7 @@ playGame.prototype = {
 		game.stage.disableVisibilityChange = true;
 
         // changing background color
-        game.stage.backgroundColor = 0x444444;
+        game.stage.backgroundColor = 0xdbe7da;
 
 		// preloading images
 		game.load.image("timebar", "timebar.png");
@@ -65,7 +66,7 @@ playGame.prototype = {
 		this.correctAnswers = 0;
 
 		// topScore gets the previously saved value in local storage if any, zero otherwise
-		this.topScore = localStorage.getItem(gameOptions.localStorageName) == null ? 0 : localStorage.getItem(gameOptions.localStorageName);
+		this.topScore = bestScore;
 
 		// sumsArray is the array with all possible questions
 		this.sumsArray = [];
@@ -171,6 +172,11 @@ playGame.prototype = {
 		}
 	},
 
+	setBestScore: function(){
+		console.log("setBestScore")
+		this.topScore = bestScore
+		this.scoreText.text = "Score: " + this.score.toString() + "\nBest Score: " + this.topScore.toString();
+	},
 	// this method asks next question
 	nextNumber: function(){
 
@@ -261,11 +267,102 @@ playGame.prototype = {
 		this.isGameOver = true;
 
 		// updating top score in local storage
-		localStorage.setItem(gameOptions.localStorageName, Math.max(this.score, this.topScore));
-
+		var a = Math.max(this.score, bestScore)
+		if(a>bestScore){
+			setdata(a)
+		}
 		// restart the game after two seconds
 		game.time.events.add(Phaser.Timer.SECOND * 2, function(){
 			game.state.start("PlayGame");
 		}, this);
 	}
+}
+
+
+var dappAddress = "n1sFUSnzRFP6kRJzfKE8JEz7WVBhvJ2U1R6";
+ var url = "https://mainnet.nebulas.io"
+var bestScore = 0;
+var nebPay;
+function initHeyue(){
+        isLock = false;
+        var NebPay = require("nebpay");     //https://github.com/nebulasio/nebPay
+        nebPay = new NebPay();
+        getdata();
+}
+
+function getdata(){
+        //var from = account.getAddressString();
+        var from = "NAS"
+        var value = "0"
+        var nonce = 0
+        var gas_price = 1000000
+        var gas_limit = 2000000
+        var callFunction = "get";
+        var callArgs = ""; //in the form of ["args"]
+        var contract = {
+            "function": callFunction,
+            // "args": callArgs
+        };
+
+        // neb.api.call(from,dappAddress,value,nonce,gas_price,gas_limit,contract).then(function (resp) {
+        //     console.log("call:" + resp.result);
+        //     var respObject = JSON.parse(resp.result)
+        //     bestScore = respObject.score
+        //     console.log("call:" + bestScore);
+        // }).catch(function (err) {
+        //     //cbSearch(err)
+        //     console.log("error:" + err.message);
+        // });
+        nebPay.simulateCall(dappAddress, value, callFunction, callArgs, {    //使用nebpay的call接口去调用合约,
+            listener: function (resp) {
+            	console.log("getdata:" + JSON.stringify(resp));
+            	try{
+            		var respObject = JSON.parse(resp.result)
+	                bestScore = respObject.score
+	                PlayGameObj.setBestScore()
+	                
+	                console.log("getdata:" + bestScore);
+            	}catch(e){
+            		console.log("getdata error:"+e.message);
+            	}
+            	
+            }        //设置listener, 处理交易返回信息
+        });
+}
+
+
+
+
+
+function setdata(score){
+        var params = {};
+        // params.from = account.getAddressString();
+        params.value = 0
+        params.nonce = 0
+        params.gas_price = 1000000
+        params.gas_limit = 2000000
+        var callFunction = "set";
+        var callArgs = "["+"\"from\""+","+score+"]"; //in the form of ["args"]
+        params.contract = {
+            "function": callFunction,
+            "args": callArgs
+        };
+        console.log("setdata call:" + callArgs);
+        // neb.api.getAccountState(params.from).then(function (resp) {
+        //     params.nonce = parseInt(resp.nonce) + 1;
+        //     submit(params);
+        // }).catch(function (err) {
+        //     //cbSearch(err)
+        //     console.log("setdata error:" + err.message);
+        // });
+
+        nebPay.call(dappAddress, params.value, callFunction, callArgs, {    //使用nebpay的call接口去调用合约,
+            listener: function (resp) {
+            	bestScore = score
+	            PlayGameObj.setBestScore()
+                console.log("setdata resp: " + JSON.stringify(resp));
+            }              
+        });
+
+        
 }

@@ -104,7 +104,7 @@ OasisGameKit.initialize(this, true, Language.CHINESE_SIMPLIFIED)
 ```
 
 ```java
-OasisGameKit.INSTANCE.initialize(this, true, Language.CHINESE_SIMPLIFIED);
+OasisGameKitJava.initialize(this, true, Language.CHINESE_SIMPLIFIED);
 ```
 
 ### 4.重写主activity中 onActivityResult函数

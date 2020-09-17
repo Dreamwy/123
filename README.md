@@ -126,7 +126,7 @@ OasisGameKit.login(this).then {
 	//非主线程
   	println("${it.playerId} login success")
 }.otherwise {
-    println("onLoginButtonClick ${it.message}")
+    	println("onLoginButtonClick ${it.message}")
 }
 ```
 
@@ -253,8 +253,7 @@ OasisGameKitJava.fetchProductCatalog(list, new OasisCallback<List<StoreProductIn
 支付接口
 
 ```kotlin
-val p =
-    OasisGameKit.purchase(productId.text.toString(), "sdffssfsf")
+val p = OasisGameKit.purchase(productId.text.toString(), "sdffssfsf")
 p.then {
     runOnUiThread {
         Toast.makeText(

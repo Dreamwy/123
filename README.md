@@ -34,12 +34,10 @@ repositories {
 android {
   defaultConfig {
         minSdkVersion(19) //适配android最低版本
-    		compileOptions {
+    	compileOptions {
         	sourceCompatibility = JavaVersion.VERSION_1_8
         	targetCompatibility = JavaVersion.VERSION_1_8
         }
-    }
-
   }
 }
 

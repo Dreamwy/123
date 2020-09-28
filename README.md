@@ -1,5 +1,3 @@
-
-
 ![oasis sdk](https://oasgames.com/pc/en/dist/images/logo_en.png)
 
 ----
@@ -10,7 +8,7 @@
 
 ## 开发环境
 
-Intellij IDEA 或 android studio 支持kotiln、java 接入 
+> Intellij IDEA 或 android studio 支持kotiln、java 接入 
 
 ## 接入步骤
 
@@ -34,10 +32,12 @@ repositories {
 android {
   defaultConfig {
         minSdkVersion(19) //适配android最低版本
-    	compileOptions {
+    		compileOptions {
         	sourceCompatibility = JavaVersion.VERSION_1_8
         	targetCompatibility = JavaVersion.VERSION_1_8
         }
+    }
+
   }
 }
 
@@ -102,7 +102,7 @@ OasisGameKit.initialize(this, true, Language.CHINESE_SIMPLIFIED)
 ```
 
 ```java
-OasisGameKitJava.initialize(this, true, Language.CHINESE_SIMPLIFIED);
+OasisGameKit.INSTANCE.initialize(this, true, Language.CHINESE_SIMPLIFIED);
 ```
 
 ### 4.重写主activity中 onActivityResult函数
@@ -117,14 +117,14 @@ CallbackManager.INSTANCE.onActivityResult(requestCode, resultCode, data);
 
 ### 5.接口接入
 
-登录接口
+> 登录接口
 
 ```kotlin
 OasisGameKit.login(this).then {
 	//非主线程
   	println("${it.playerId} login success")
 }.otherwise {
-    	println("onLoginButtonClick ${it.message}")
+    println("onLoginButtonClick ${it.message}")
 }
 ```
 
@@ -146,7 +146,7 @@ OasisGameKitJava.login(this, new OasisCallback<Player>() {
 });
 ```
 
-账号切换通知
+> 账号切换通知
 
 ```kotlin
 OasisGameKit.backgroundEvents.playerSwitched.then {
@@ -163,7 +163,7 @@ OasisGameKitJava.getBackgroundEvents().addPlayerSwitchedCallback(new EventCallba
         });
 ```
 
-日志上报
+> 日志上报
 
 ```kotlin
 OasisGameKit.trackingKit.logEvent(
@@ -202,7 +202,7 @@ OasisGameKitJava.getCurrentGameRole().setRoleName(System.currentTimeMillis() + "
 OasisGameKitJava.getCurrentGameRole().setCoins(100);
 ```
 
-获取支付列表
+> 获取支付列表
 
 ```kotlin
 val list = ArrayList<String>()
@@ -248,10 +248,11 @@ OasisGameKitJava.fetchProductCatalog(list, new OasisCallback<List<StoreProductIn
 });
 ```
 
-支付接口
+> 支付接口
 
 ```kotlin
-val p = OasisGameKit.purchase(productId.text.toString(), "sdffssfsf")
+val p =
+    OasisGameKit.purchase(productId.text.toString(), "sdffssfsf")
 p.then {
     runOnUiThread {
         Toast.makeText(
@@ -296,3 +297,15 @@ OasisGameKitJava.purchase("normal.marstest.100", "sdffssfsf", new OasisCallback<
     }
 });
 ```
+
+### 接口定义及返回类型
+
+| 接口名     | 参数类型                                         | 返回类型                         |
+| ---------- | ------------------------------------------------ | -------------------------------- |
+| login      | Activity                                         | PromiseInterface<play>           |
+| initialize | Application,Boolean(沙箱开关),Language(默认语言) | Unit                             |
+| logEvent   | String,Map<String,Any>?,Int                      | Unit                             |
+| purchase   | String(productID),String?(自定义参数)            | PromiseInterface<PurchaseResult> |
+
+
+
